@@ -11,26 +11,13 @@ import '../../App.css';
 let Lists = db.ref('lists')
 let history = createHistory()
 
-let state = {
-  searchResults: []
-}
-
-const searchResultsTest = [
-  { name: 'Cafe name 1', address: '1 Station Street'},
-  { name: 'Cafe 2', address: '2 Station Street'},
-  { name: 'Cafe 3', address: '3 Station Street'},
-  { name: 'Cafe 4', address: '4 Station Street'},
-]
-
-
-
-
 class SearchResultRow extends Component {
   render() {
     return (
       <div>
         <h3>{this.props.result.name}</h3>
         <p>{this.props.result.formatted_address}</p>
+        <p><a href="#" onClick={(e) => { e.preventDefault; this.props.yew(this.props.result)}}><i className="glyphicon glyphicon-heart"></i></a></p>
       </div>
     )
   }
@@ -68,6 +55,13 @@ class App extends Component {
     this.setState({
       selectedList: query.list
     })
+  }
+
+  addToList (result) {
+    console.log(result);
+    // this.setState({
+    //   favouritePlace: id
+    // })
   }
 
   addNewList() {
@@ -136,7 +130,7 @@ class App extends Component {
             <ul>
               {
                 _.map(this.state.searchResults, (result, i) => {
-                  return <SearchResultRow key={result.id} result={result} />
+                  return <SearchResultRow key={result.id} result={result} yew={this.addToList} />
                 })
               }
             </ul>
