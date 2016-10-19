@@ -118,7 +118,7 @@ class App extends Component {
             <h1>Search</h1>
             {/* <Search /> */}
             <div className="input-group">
-              <input ref="searchKeyword" type="text" className="form-control" placeholder="Search for..." value="cafes in sydney"/>
+              <input ref="searchKeyword" type="text" className="form-control" placeholder="Search for..." defaultValue="cafes in sydney"/>
               <span className="input-group-btn">
                 <button onClick={() => this.search()} className="btn btn-default" type="button">Go!</button>
               </span>
@@ -127,7 +127,7 @@ class App extends Component {
             <ul>
               {
                 _.map(this.state.searchResults, (result, i) => {
-                  return <SearchResultRow key={result.id} result={result} yew={this.addToList} />
+                  return <SearchResultRow key={result.id} result={result} onClick={this.addToList} />
                 })
               }
             </ul>
