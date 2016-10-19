@@ -1,5 +1,7 @@
+import config from './config'
 
 export default function fetchResults(keyword) {
+
 
   let mapsUrl = "https://accesscontrolalloworiginall.herokuapp.com/https://maps.googleapis.com/maps/api/place/textsearch/json"
   let apiKey = "AIzaSyCpBHSOQ4xgrIIDV20k64DYb87adZ5VpSA"
