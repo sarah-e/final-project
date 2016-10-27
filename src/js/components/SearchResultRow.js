@@ -12,14 +12,21 @@ export default class SearchResultRow extends Component {
     let urlString = `${config.PHOTOS_URL}&photoreference=${photoRef}&key=${config.GOOGLE_PLACES_API_KEY}`
 
     return (
-      <div>
-        { photoRef ? <img src={urlString} /> : null }
-        <h3>{this.props.result.name}</h3>
-        <p>{this.props.result.formatted_address}</p>
-        <p>
-          <a href="#" onClick={(e) => this.addToWishlist(e)}>
-          <i className="glyphicon glyphicon-heart"></i></a>
-        </p>
+      <div className="media mb-1">
+        <div className="media-left">
+
+            { photoRef ? <img src={urlString} className="media-object img" alt={this.props.result.name} /> : null }
+
+        </div>
+        <div className="media-body">
+          <h3 className="">{this.props.result.name}</h3>
+          <p>{this.props.result.formatted_address}</p>
+          <p>
+            <a href="#" onClick={(e) => this.addToWishlist(e)}>
+              <i className="fa fa-heart"></i>
+            </a>
+          </p>
+        </div>
       </div>
     )
   }

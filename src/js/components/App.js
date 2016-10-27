@@ -3,35 +3,33 @@ import _ from 'lodash'
 import qs from 'query-string'
 import createHistory from 'history/createBrowserHistory'
 import db from '../../db'
-import List from './List'
 import fetchResults from './fetch'
-// import Search from './Search'
 import SearchResultRow from './SearchResultRow'
-import renderResults from './render'
 import '../../App.css';
 
-let Lists = db.ref('lists')
+let Wishlist = db.ref('wishlists')
 let history = createHistory()
 
 class App extends Component {
   state = {
     searchResults: [],
-    lists: {},
-    selectedList: null
+    wishlist: {},
+    selectedList:null
   }
 
   constructor(props) {
     super(props)
     this.state = {
       searchResults: null,
+      wishlist: {}
     };
+    this.addToList = this.addToList.bind(this);
+    this.removeItem = this.removeItem.bind(this);
   }
 
   componentDidMount() {
-    Lists.on('value', snapshot => {
-      this.setState({
-        lists: snapshot.val()
-      })
+    Wishlist.on('value', snapshot => {
+        this.setState({ wishlist: snapshot.val() ? snapshot.val() : {} })
     })
 
     history.listen(location => {
@@ -48,35 +46,16 @@ class App extends Component {
   }
 
   addToList (result) {
-    console.log(result);
-    // this.setState({
-    //   favouritePlace: id
-    // })
+    let wishlistEntry = {
+      name:result.name,
+      data:result
+    }
+
+    Wishlist.push(wishlistEntry)
   }
 
-  addNewList() {
-    let newListName = this.refs.newListName
-
-    Lists.push({
-      name: newListName.value,
-      items: []
-    })
-
-    newListName.value = ''
-  }
-
-  addNewItem(id) {
-    let newItemName = this.refs.newItemName
-
-    Lists.child(id).child('items').push({
-      name: newItemName.value
-    })
-
-    newItemName.value = ''
-  }
-
-  goToList(id) {
-    history.push({ search: `?list=${id}` })
+  goToList() {
+    history.push({ search: `?list=wishlist` })
   }
 
   goToHome(e) {
@@ -86,9 +65,8 @@ class App extends Component {
 
   search() {
     let searchTerm = this.refs.searchKeyword
-    console.log('in search function app.js ' + searchTerm.value);
+    console.log('in search ' + searchTerm.value);
     this.fetchData(searchTerm.value)
-    console.log(this.state.sarchResults);
   }
 
   fetchData(keyword) {
@@ -105,91 +83,52 @@ class App extends Component {
   }
 
   removeItem(id,item) {
-    console.log('Remove this ' + item);
-
+    Wishlist.child(id).remove();
   }
 
   renderHome() {
 
     return (
-      <div className="App">
+      <div className="App py-1">
         <div className="row">
-          <div className="col-sm-6 col-sm-offset-3">
+          <div className="col-sm-8 offset-sm-2">
+            <div className="mb-1"><a href="#" onClick={() => this.goToList()}>Wishlist</a> ({Object.keys(this.state.wishlist).length}) </div>
             <h1>Search</h1>
-            {/* <Search /> */}
-            <div className="input-group">
+            <div className="input-group mb-3">
               <input ref="searchKeyword" type="text" className="form-control" placeholder="Search for..." defaultValue="cafes in sydney"/>
               <span className="input-group-btn">
                 <button onClick={() => this.search()} className="btn btn-default" type="button">Go!</button>
               </span>
             </div>
-
-            <ul>
-              {
-                _.map(this.state.searchResults, (result, i) => {
-                  return <SearchResultRow key={result.id} result={result} onClick={this.addToList} />
-                })
-              }
-            </ul>
-
-            <List />
-
-          </div>
-        </div>
-
-
-        <div className="row">
-          <div className="col-sm-6 col-sm-offset-3">
-            <h3>List Name</h3>
-            <div className="input-group">
-              <input ref="newListName" type="text" className="form-control" />
-              <span className="input-group-btn">
-                <button className="btn btn-default" onClick={() => this.addNewList()} type="button">Add New List</button>
-              </span>
-            </div>
-
-            <ul className="">
-              {
-                _.map(this.state.lists, (list, id) => {
-                  return <li onClick={() => this.goToList(id)} key={id}><a href="#">{list.name}</a></li>
-                })
-              }
-            </ul>
+            {
+              _.map(this.state.searchResults, (result, i) => {
+                return <SearchResultRow key={result.id} result={result} onClick={this.addToList} />
+              })
+            }
           </div>
         </div>
       </div>
     )
   }
 
-
   renderList() {
-    let id = this.state.selectedList
-    let list = this.state.lists[id]
-
+    let list = this.state.wishlist;
     return (
-      <div className="App">
-
+      <div className="App py-1">
         <div className="row">
-          <div className="col-sm-6 col-sm-offset-3">
-            <a href="/" onClick={(e) => this.goToHome(e)}>Go Home</a>
-            <h1>{list.name}</h1>
-            <h3>New Item:</h3>
-            <div className="input-group">
-              <input ref="newItemName" type="text" className="form-control" />
-              <span className="input-group-btn">
-                <button className="btn btn-default" onClick={() => this.addNewItem(id)} key={id} type="button">Add New Item</button>
-              </span>
-            </div>
+          <div className="col-sm-8 offset-sm-2">
+            <p><a href="/" onClick={(e) => this.goToHome(e)}>Go Home</a></p>
+            <h1>Wishlist</h1>
             <ul>
               {
-                _.map(list.items, item => {
+                _.map(list, (item, id) => {
+                  console.log('renderList map id:'+id+":item:"+item)
                   return <li key={id}>{item.name} <a href="#" onClick={() => this.removeItem(id)} ><i className="fa fa-trash delete"></i></a></li>
                 })
               }
             </ul>
           </div>
         </div>
-
       </div>
     )
   }
@@ -200,8 +139,6 @@ class App extends Component {
     }
     return this.renderHome()
   }
-
-
 }
 
 export default App;
